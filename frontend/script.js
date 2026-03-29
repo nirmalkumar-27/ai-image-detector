@@ -14,8 +14,6 @@ async function upload() {
     }
 
     const resultDiv = document.getElementById("result");
-
-    // reset styles
     resultDiv.className = "result-box";
     resultDiv.innerHTML = "⏳ Processing...";
 
@@ -23,7 +21,7 @@ async function upload() {
     formData.append("file", file);
 
     try {
-        let res = await fetch("https://ai-image-detector-mgab.onrender.com/detect", {
+        let res = await fetch("http://127.0.0.1:8000/detect", {
             method: "POST",
             body: formData
         });
@@ -35,7 +33,6 @@ async function upload() {
             return;
         }
 
-        // color class
         if (data.label === "AI Generated") {
             resultDiv.classList.add("ai");
         } else if (data.label === "Real Image") {
@@ -44,18 +41,16 @@ async function upload() {
             resultDiv.classList.add("uncertain");
         }
 
-        // build result safely (NO heatmap dependency)
-        let html = `
+        resultDiv.innerHTML = `
             <h2>${data.label}</h2>
             <p><b>Confidence:</b> ${data.confidence}%</p>
             <p>${data.analysis}</p>
-            <p class="tech">Powered by EfficientNet-B0</p>
+            <h3>Model Focus</h3>
+            <img src="data:image/jpeg;base64,${data.heatmap}" width="250"/>
+            <p class="tech">Powered by EfficientNet-B0 + Explainable AI</p>
         `;
 
-        resultDiv.innerHTML = html;
-
     } catch (err) {
-        console.error(err);
         resultDiv.innerHTML = `<p style="color:red;">Request failed</p>`;
     }
 }
