@@ -1,0 +1,120 @@
+<<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Image Detector</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            text-align: center;
+        }
+
+        .container {
+            padding: 40px;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 15px;
+            display: inline-block;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #3b82f6;
+            border: none;
+            color: white;
+            cursor: pointer;
+        }
+
+        #preview {
+            width: 250px;
+            display: none;
+            margin-top: 20px;
+        }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+        }
+
+        .real { background: green; }
+        .ai { background: red; }
+        .uncertain { background: orange; }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>AI Image Detector</h1>
+
+    <div class="card">
+
+        <input type="file" id="imageInput" onchange="previewImage(event)">
+
+        <br><br>
+
+        <img id="preview">
+
+        <br><br>
+
+        <button onclick="upload()">Detect</button>
+
+    </div>
+
+    <div id="result" class="result-box"></div>
+
+</div>
+
+<script>
+
+function previewImage(event) {
+    const img = document.getElementById("preview");
+    img.src = URL.createObjectURL(event.target.files[0]);
+    img.style.display = "block";
+}
+
+async function upload() {
+    const file = document.getElementById("imageInput").files[0];
+
+    if (!file) {
+        alert("Select image");
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append("file", file);
+
+    let res = await fetch("/detect", {
+        method: "POST",
+        body: formData
+    });
+
+    let data = await res.json();
+
+    let resultDiv = document.getElementById("result");
+
+    resultDiv.className = "result-box";
+
+    if (data.label === "AI Generated") resultDiv.classList.add("ai");
+    else if (data.label === "Real Image") resultDiv.classList.add("real");
+    else resultDiv.classList.add("uncertain");
+
+    resultDiv.innerHTML = `
+        <h2>${data.label}</h2>
+        <p>${data.confidence}%</p>
+        <p>${data.analysis}</p>
+        <img src="data:image/jpeg;base64,${data.heatmap}" width="250"/>
+    `;
+}
+
+</script>
+
+</body>
+</html>
