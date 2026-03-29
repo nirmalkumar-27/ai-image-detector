@@ -21,7 +21,7 @@ async function upload() {
     formData.append("file", file);
 
     try {
-        let res = await fetch("http://127.0.0.1:8000/detect", {
+        let res = await fetch("https://ai-image-detector-mgab.onrender.com/detect", {
             method: "POST",
             body: formData
         });
