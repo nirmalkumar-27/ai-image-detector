@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Image Detector</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+
+        <h1>AI Image Detection System</h1>
+        <p class="subtitle">Detect whether an image is Real or AI Generated</p>
+
+        <div class="card">
+
+            <input type="file" id="imageInput" onchange="previewImage(event)">
+
+            <div class="preview-box">
+                <img id="preview"/>
+            </div>
+
+            <button onclick="upload()">Detect Image</button>
+
+        </div>
+
+        <div id="result" class="result-box"></div>
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
