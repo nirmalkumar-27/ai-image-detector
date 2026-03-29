@@ -52,14 +52,6 @@ async function upload() {
             <p class="tech">Powered by EfficientNet-B0</p>
         `;
 
-        // optional heatmap (only if exists)
-        if (data.heatmap) {
-            html += `
-                <h3>Model Focus</h3>
-                <img src="data:image/jpeg;base64,${data.heatmap}" width="250"/>
-            `;
-        }
-
         resultDiv.innerHTML = html;
 
     } catch (err) {

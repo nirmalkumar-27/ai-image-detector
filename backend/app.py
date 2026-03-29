@@ -1,15 +1,21 @@
 from fastapi import FastAPI, File, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from model import AIDetector
 from utils import read_image
-
-import base64
-import cv2
-import numpy as np
+import os
 
 app = FastAPI()
 
 detector = AIDetector()
+
+# serve frontend
+app.mount("/static", StaticFiles(directory="../frontend"), name="static")
+
+@app.get("/")
+def home():
+    return FileResponse("../frontend/index.html")
 
 app.add_middleware(
     CORSMiddleware,
@@ -28,30 +34,17 @@ async def detect_image(file: UploadFile = File(...)):
         real_prob = detector.predict(image)
         ai_prob = 1 - real_prob
 
-        # decision logic
-        if ai_prob > 0.7:
+        if ai_prob > 0.6:
             label = "AI Generated"
-            analysis = "Strong synthetic patterns detected"
-        elif ai_prob > 0.5:
-            label = "Possibly AI Generated"
-            analysis = "Some artificial characteristics detected"
+            analysis = "Synthetic patterns detected"
         else:
             label = "Real Image"
-            analysis = "Natural image properties detected"
-
-        # heatmap
-        cam = detector.generate_heatmap(image)
-        cam = np.uint8(255 * cam)
-        cam = cv2.applyColorMap(cam, cv2.COLORMAP_JET)
-
-        _, buffer = cv2.imencode(".jpg", cam)
-        heatmap_base64 = base64.b64encode(buffer).decode()
+            analysis = "Natural image"
 
         return {
             "label": label,
             "confidence": round(ai_prob * 100, 2),
-            "analysis": analysis,
-            "heatmap": heatmap_base64
+            "analysis": analysis
         }
 
     except Exception as e:
